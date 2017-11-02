@@ -16,6 +16,7 @@ from provisioningserver.drivers.power.dli import DLIPowerDriver
 from provisioningserver.drivers.power.fence_cdu import FenceCDUPowerDriver
 from provisioningserver.drivers.power.hmc import HMCPowerDriver
 from provisioningserver.drivers.power.ipmi import IPMIPowerDriver
+from provisioningserver.drivers.power.lindy import LindyPowerDriver
 from provisioningserver.drivers.power.manual import ManualPowerDriver
 from provisioningserver.drivers.power.moonshot import MoonshotIPMIPowerDriver
 from provisioningserver.drivers.power.mscm import MSCMPowerDriver
@@ -55,6 +56,7 @@ power_drivers = [
     FenceCDUPowerDriver(),
     HMCPowerDriver(),
     IPMIPowerDriver(),
+    LindyPowerDriver(),
     ManualPowerDriver(),
     MoonshotIPMIPowerDriver(),
     MSCMPowerDriver(),
