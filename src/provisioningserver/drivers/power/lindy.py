@@ -3,6 +3,7 @@
 Sébastien Vaucher, University of Neuchâtel, November 2017
 """
 import re
+import time
 
 import serial
 
@@ -34,11 +35,12 @@ class LindyPowerDriver(PowerDriver):
 
     def query_states(self):
         statuses = dict()
-        with serial.Serial("/dev/ttyS0", 115200, timeout=3) as ser:
+        with serial.Serial("/dev/ttyS0", 115200, timeout=2) as ser:
+            time.sleep(1)
             ser.reset_output_buffer()
             ser.reset_input_buffer()
 
-            ser.write(b"\n")
+            ser.write(b"\r\n")
             lines = ser.readlines()
 
             regex = re.compile(r"<([1-9A-C])> (ON|OFF)\s*")
@@ -51,30 +53,41 @@ class LindyPowerDriver(PowerDriver):
         return statuses
 
     def toggle_port(self, port):
-        with serial.Serial("/dev/ttyS0", 115200, timeout=3) as ser:
+        with serial.Serial("/dev/ttyS0", 115200, timeout=2) as ser:
+            time.sleep(1)
             ser.reset_output_buffer()
             ser.reset_input_buffer()
 
-            ser.write(b"\n")
+            ser.write(b"\r\n")
             ser.write(port.encode())
             ser.write(b"\x1b")
-            ser.reset_input_buffer()
+            time.sleep(1)
 
     def power_on(self, system_id, context):
         port = context['node_outlet']
-        if self.query_states()[port] == 'off':
+        try:
+            if self.query_states()[port] == 'on':
+                self.toggle_port(port)
             self.toggle_port(port)
+        except KeyError as ex:
+            raise PowerConnError(ex)
 
     def power_off(self, system_id, context):
-        port = context['node_outlet']
-        if self.query_states()[port] == 'on':
-            self.toggle_port(port)
+        try:
+            port = context['node_outlet']
+            if self.query_states()[port] == 'on':
+                self.toggle_port(port)
+        except KeyError as ex:
+            raise PowerConnError(ex)
 
     def power_query(self, system_id, context):
         port = context['node_outlet']
-        state = self.query_states()[port]
+        try:
+            state = self.query_states()[port]
 
-        if state in ("on", "off"):
-            return state
-        else:
-            raise PowerConnError()
+            if state in ("on", "off"):
+                return state
+            else:
+                raise PowerConnError()
+        except KeyError as ex:
+            raise PowerConnError(ex)
