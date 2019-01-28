@@ -28,6 +28,7 @@ from provisioningserver.drivers.power.seamicro import SeaMicroPowerDriver
 from provisioningserver.drivers.power.ucsm import UCSMPowerDriver
 from provisioningserver.drivers.power.virsh import VirshPowerDriver
 from provisioningserver.drivers.power.vmware import VMwarePowerDriver
+from provisioningserver.drivers.power.wakeonlan import WakeOnLanDriver
 from provisioningserver.drivers.power.wedge import WedgePowerDriver
 from provisioningserver.utils.registry import Registry
 
@@ -69,6 +70,7 @@ power_drivers = [
     UCSMPowerDriver(),
     VirshPowerDriver(),
     VMwarePowerDriver(),
+    WakeOnLanDriver(),
     WedgePowerDriver(),
 ]
 for driver in power_drivers:
