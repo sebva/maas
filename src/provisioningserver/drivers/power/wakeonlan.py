@@ -42,6 +42,13 @@ class WakeOnLanDriver(PowerDriver):
         subprocess.check_call(["wakeonlan", context.get("power_mac")])
 
     def power_off(self, system_id, context):
+        # Enable Wake-on-LAN at the driver level
+        subprocess.call(
+            ["ssh", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null",
+             "%s@%s" % (context.get("power_user"), context.get("power_address")),
+             *("ls -1go /sys/class/net/ | tail -n +2 | grep -v virtual | awk '{print $7}' | "
+               "xargs -Idev sudo ethtool -s dev wol g".split(" "))
+             ])
         subprocess.call(
             ["ssh", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null",
              "%s@%s" % (context.get("power_user"), context.get("power_address")), "sudo", "poweroff"])
