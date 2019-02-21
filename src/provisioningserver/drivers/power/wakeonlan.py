@@ -7,12 +7,11 @@ import subprocess
 __all__ = []
 
 from provisioningserver.drivers import (
-    IP_EXTRACTOR_PATTERNS,
-    make_ip_extractor,
     make_setting_field,
 )
 from provisioningserver.drivers.power import PowerDriver
 from provisioningserver.utils import shell
+from twisted.internet.defer import maybeDeferred
 
 REQUIRED_PACKAGES = [["wakeonlan", "wakeonlan"]]
 
@@ -26,7 +25,7 @@ class WakeOnLanDriver(PowerDriver):
         make_setting_field('power_mac', "Power MAC address", required=True),
         make_setting_field('power_user', "Power username", required=True),
     ]
-    ip_extractor = make_ip_extractor('power_address', IP_EXTRACTOR_PATTERNS.URL)
+    ip_extractor = None
 
     def detect_missing_packages(self):
         missing_packages = set()
@@ -34,6 +33,10 @@ class WakeOnLanDriver(PowerDriver):
             if not shell.has_command_available(binary):
                 missing_packages.add(package)
         return list(missing_packages)
+
+    def on(self, system_id, context):
+        """Override `on` as we do not need retry logic."""
+        return maybeDeferred(self.power_on, system_id, context)
 
     def power_on(self, system_id, context):
         subprocess.check_call(["wakeonlan", context.get("power_mac")])
