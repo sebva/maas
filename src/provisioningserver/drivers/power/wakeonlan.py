@@ -8,7 +8,7 @@ __all__ = []
 
 from provisioningserver.drivers import (
     make_setting_field,
-)
+    make_ip_extractor)
 from provisioningserver.drivers.power import PowerDriver
 from provisioningserver.utils import shell
 from twisted.internet.defer import maybeDeferred
@@ -25,7 +25,7 @@ class WakeOnLanDriver(PowerDriver):
         make_setting_field('power_mac', "Power MAC address", required=True),
         make_setting_field('power_user', "Power username", required=True),
     ]
-    ip_extractor = None
+    ip_extractor = make_ip_extractor('power_address')
 
     def detect_missing_packages(self):
         missing_packages = set()
